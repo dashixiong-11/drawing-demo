@@ -8,54 +8,182 @@
     <title>JS Bin</title>
     <style>
         #xxx {
-            background: gray;
+            background: white;
             display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
-
+        ul,ol{
+            list-style: none;
+        }
+        *{
+            margin: 0;
+            padding: 0;
+        }
         body {
-            margin: 0
+            margin: 0;
+            overflow: hidden;
         }
-
+        .actions svg{
+            width: 2em;
+            height: 2em;
+            transition: all 0.3s;           
+        }
+        #eraser,#clear,#save{
+            margin-left: 10px
+        }
         .actions {
             position: fixed;
             left: 0;
-            bottom: 0;
+            top: 0;
+            padding: 20px;                      
         }
-
-        .actions #brush {
-            display: none;
+        .actions svg.x{
+            color: red;
+            transform: scale(1.2);         
         }
-
-        .actions.x #brush {
-            display: inline-block;
+        
+        .icon {
+            width: 1em; height: 1em;
+            vertical-align: -0.15em;
+            fill: currentColor;
+            overflow: hidden;
         }
-
-        .actions.x #eraser {
-            display: none;
+        .colors{
+            position: fixed;
+            top: 40px;
+            left: 10px;
+            margin-top:30px; 
+            
+        }
+        .colors li{
+            width: 20px;
+            height: 20px;
+            border: 3px solid gray;
+            margin: 10px 0px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .colors li.red{
+            background: red;
+        }
+        .colors li.green{
+            background: green;
+        }
+        .colors li.blue{
+            background: blue;
+        }
+        .colors li.active{
+            transform:scale(1.2);
+            
+        }
+        .sizes{
+            position: fixed;
+            right: 10px;
+            top: 5px;
+        }
+        .sizes li{
+            margin: 20px 0;     
+        }
+        .sizes .thin{
+            height: 0px;
+            width: 30px;
+            border: 3px solid gray;
+            border-radius: 3px;
+        }
+        .sizes .thick{
+            height: 0px;
+            width: 50px;
+            border: 6px solid gray;
+            border-radius: 6px;
         }
     </style>
 </head>
 
 <body>
     <canvas id='xxx'></canvas>
-    <div id="actions" class="actions">
-        <button id="eraser">橡皮擦</button>
-        <button id="brush">画笔</button>
+    <div id="actions" class="actions">    
+        <svg class="icon x" id="brush" aria-hidden="true">
+            <use xlink:href="#icon-pen1"></use>
+        </svg>
+        <svg class="icon" id="eraser" aria-hidden="true">
+            <use xlink:href="#icon-eraser"></use>
+        </svg>
+        <svg class="icon" id="clear" aria-hidden="true">
+            <use xlink:href="#icon-clear"></use>
+        </svg>
+        <svg class="icon" id="save" aria-hidden="true">
+            <use xlink:href="#icon-save1"></use>
+        </svg>      
     </div>
+    <ol class="colors">
+        <li id="red" class="red"></li>
+        <li id="green" class="green"></li>
+        <li id="blue" class="blue"></li>
+    </ol>
+    <ol class="sizes">
+        <li id="thin" class="thin"></li>
+        <li id="thick" class="thick"></li>
+    </ol>
 </body>
+<script src="//at.alicdn.com/t/font_764218_llsa3nzxqyl.js"></script>
 <script>
+    doucument.body.ontouchstart = function(){
+        eee.preventDefault()
+    }
     var yyy = document.getElementById('xxx');
     var context = yyy.getContext('2d');
+    var lineWidth = 2
     autoSetCanvasSize(yyy)
     listenToMouse(yyy)
 
+    save.onclick = function(){
+        var url = yyy.toDataURL('image/png')
+        var a = document.createElement('a')
+        document.body.appendChild(a)
+        a.href = url 
+        a.download = 'my drawing'
+        a.click()
+    }
+    thin.onclick = function(){
+        lineWidth = 2
+    }
+    thick.onclick = function(){
+        lineWidth = 5
+    }
+    clear.onclick = function(){
+        context.clearRect(0,0,yyy.width,yyy.height)
+    }
+    red.onclick = function(){
+        context.fillStyle = 'red'
+        context.strokeStyle = 'red'
+        red.classList.add('active')
+        green.classList.remove('active')
+        blue.classList.remove('active')
+    }
+    green.onclick = function(){
+        context.fillStyle = 'green'
+        context.strokeStyle = 'green'
+        green.classList.add('active')
+        red.classList.remove('active')
+        blue.classList.remove('active')
+       
+    
+    }
+    blue.onclick = function(){
+        context.fillStyle = 'blue'
+        context.strokeStyle = 'blue'
+        blue.classList.add('active')
+        green.classList.remove('active')
+        red.classList.remove('active')
+    }
 
 
     function drawLine(x1, y1, x2, y2) {
         context.beginPath()
-        context.strokeStyle = 'red'
         context.moveTo(x1, y1) //起点
-        context.lineWidth = 2
+        context.lineWidth = lineWidth
         context.lineTo(x2, y2)//终点
         context.stroke()
     }
@@ -71,12 +199,15 @@
     var eraserEnabled = false
     eraser.onclick = function () {
         eraserEnabled = true
-        actions.className = 'actions x'
+        eraser.classList.add('x')
+        brush.classList.remove('x')
     }
     brush.onclick = function () {
         eraserEnabled = false
-        actions.className = 'actions'
+        brush.classList.add('x')
+        eraser.classList.remove('x')
     }
+    
     function autoSetCanvasSize(canvas) {
         widthheight()
 
